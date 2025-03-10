@@ -41,7 +41,9 @@
 #include <string.h>
 #include <kipr/console/console.h>
 #include <kipr/console/display.h>
-
+#ifdef __cplusplus
+	#include <iostream>
+#endif
 #define _MAPy 11 // 9 rows when 3 buttons visible, loses 2 rows for each line of virtual buttons
 #define _MAPx 43 // 41 columns is max fit for screen (array has 42 to accommodate \0)
 char _display_map[_MAPy][_MAPx];
@@ -97,7 +99,16 @@ void display_printf(int col, int row, const char *t, ...)
     maxw--;
   }
   va_end(argp); // clean up
-  for (i = 0; i < _MAPy - rb6 - 1; i++)
-    printf("%s\n", _display_map[i]); // refresh the display
-  printf("%s", _display_map[i]);     // last line printed without new line
+  #ifdef __cplusplus // printf doesnt flush the terminal in cpp, this might help
+	 	for (i = 0; i < _MAPy - rb6 - 1; i++){
+	    std::cout << _display_map[i] << std::endl;
+	  }
+	  std::cout << _display_map[i] << std::flush;
+  #else
+	  for (i = 0; i < _MAPy - rb6 - 1; i++){
+	    printf("%s\n", _display_map[i]); // refresh the display
+	  }
+	  printf("%s", _display_map[i]);     // last line printed without new line
+	  fflush(stdout);
+  #endif
 }
